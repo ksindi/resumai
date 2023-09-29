@@ -7,11 +7,12 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1"
+aws-config = "0.56.1"
+aws-sdk-textract = "0.31.1"
 base64 = "0.21.4"
 clap = { version = "4.4.2", features = ["derive", "env"] }
 llm-chain = "0.12.3"
 llm-chain-openai = "0.12.3"
-reqwest = "0.11.20"
 tokio = { version = "1.32.0", features = ["full"] }
 tracing = "0.1"
 tracing-futures = "0.2"
