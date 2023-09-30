@@ -1,12 +1,13 @@
 use std::path::PathBuf;
 
 use anyhow::Result;
-use aws_sdk_textract::{primitives::Blob, types::Document};
 use clap::{arg, command, Parser};
 use llm_chain::{
     chains::map_reduce::Chain, executor, options, parameters, prompt, step::Step, Parameters,
 };
 use llm_chain_openai::chatgpt::Model;
+
+mod extract_text;
 
 #[derive(Parser, Debug, Clone)]
 #[command(author, version, about, long_about = None)]
@@ -67,21 +68,10 @@ async fn main() -> Result<()> {
     tracing_subscriber::fmt::init();
 
     let args: Args = Args::parse();
-    let document_bytes = std::fs::read(args.filepath).expect("file exists and is readable");
 
-    // base64 encode the document
-    // let document_bytes = base64::encode(document_bytes);
+    let text = extract_text::pdf2text(&args.filepath)?;
 
-    let shared_config = aws_config::from_env().load().await;
-    let client = aws_sdk_textract::Client::new(&shared_config);
-
-    let res = client
-        .detect_document_text()
-        .document(Document::builder().bytes(Blob::new(document_bytes)).build())
-        .send()
-        .await?;
-
-    println!("{:#?}", res);
+    println!("Extracted text from PDF:\n\n{}", text);
 
     Ok(())
 }
