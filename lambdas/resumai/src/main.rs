@@ -2,12 +2,8 @@ use std::path::PathBuf;
 
 use anyhow::Result;
 use clap::{arg, command, Parser};
-use llm_chain::{
-    chains::map_reduce::Chain, executor, options, parameters, prompt, step::Step, Parameters,
-};
+use llm_chain::{executor, options, parameters, prompt};
 use llm_chain_openai::chatgpt::Model;
-
-mod extract_text;
 
 #[derive(Parser, Debug, Clone)]
 #[command(author, version, about, long_about = None)]
@@ -17,50 +13,64 @@ struct Args {
     pub filepath: PathBuf,
 }
 
-/// Summarize a list of pages into a single summary.
-async fn summarize_pages(
-    pages: Vec<String>,
-    company_name: &str,
-) -> Result<(), Box<dyn std::error::Error>> {
+/// Analyze resume.
+async fn analyze_resume(resume_text: &String) -> Result<()> {
     let opts = options!(Model: Model::Gpt4);
     let exec = executor!(chatgpt, opts)?;
-    let map_prompt = create_map_prompt(&company_name);
-    let reduce_prompt = create_reduce_prompt();
-    let chain = Chain::new(map_prompt, reduce_prompt);
-    let docs = pages.into_iter().map(|page| parameters!(page)).collect();
+    let res = prompt!(
+r#"
+You are a model trained to analyze resumes to identify specific key attributes and provide a detailed analysis. Please analyze the following resume text and provide commentary and a score for each attribute listed below. The text is parsed from a PDF resume and should be treated with mindfulness for various formats and potential parsing issues.
+"#,
+r#"
 
-    let res = chain.run(docs, Parameters::new(), &exec).await?;
-    tracing::info!("{}", res.to_immediate().await?.as_content());
+Resume Text:
+`{{text}}`
+
+### Analysis:
+
+#### 1. **Title Progression:**
+- **Objective:** Identify if the candidate has shown progression in their titles indicating career growth and not stagnancy.
+- **Commentary:**
+
+#### 2. **Tenures:**
+- **Objective:** Ensure the candidate has tenures of at least 2 years at each company they have worked for.
+- **Commentary:**
+
+#### 3. **Achievements:**
+- **Objective:** Look for achievements that indicate a positive impact on the business and handling of large-scale operations (e.g., requests per second) using data.
+- **Commentary:**
+
+#### 4. **Experience as a Software Engineer:**
+- **Objective:** Verify that the candidate has at least 5 years of experience as a software engineer.
+- **Commentary:**
+
+#### 5. **Leadership in Projects:**
+- **Objective:** Confirm that the candidate has led projects.
+- **Commentary:**
+
+#### 6. **Knowledge of DevOps, AWS, and Infrastructure:**
+- **Objective:** Check for keywords such as DevOps, AWS, Infrastructure, and CI/CD to ensure the candidate has knowledge in these areas.
+- **Commentary:**
+
+### Overall Scores:
+Provide an overall score for each attribute on a scale of 1-10 and a final cumulative score.
+
+1. **Title Progression:** [Score]
+2. **Tenures:** [Score]
+3. **Achievements:** [Score]
+4. **Experience as a Software Engineer:** [Score]
+5. **Leadership in Projects:** [Score]
+6. **Knowledge of DevOps, AWS, and Infrastructure:** [Score]
+
+### Final Cumulative Score: [Total Score]
+"#
+)
+    .run(&parameters!(resume_text), &exec)
+    .await?;
+
+    println!("{}", res.to_immediate().await?.as_content());
 
     Ok(())
-}
-
-/// Create a prompt for the map step.
-fn create_map_prompt(company_name: &str) -> Step {
-    Step::for_prompt_template(prompt!(
-        &format!(
-            r#"
-"You are a bot designed to summarize call transcripts between {} and its customers. Your main goal is to help product managers and engineers quickly understand the key pain points customers face. Transcripts are formatted as:
-`SpeakerId: Paragraph`.
-
-Given a transcript, extract and list the customer's main issues, referencing key phrases from the call to back up each finding. 
-"#,
-            company_name
-        ),
-        r#"
-
-Task: Summarize the following transcript into bullet points that highlight customer pain points with their current solution:
-`{{text}}`"
-"#
-    ))
-}
-
-/// Create a prompt for the reduce step.
-fn create_reduce_prompt() -> Step {
-    Step::for_prompt_template(prompt!(
-        "You are a diligent bot that summarizes text",
-        "Please combine the articles below into one summary as bullet points:\n{{text}}"
-    ))
 }
 
 #[tokio::main]
@@ -69,9 +79,12 @@ async fn main() -> Result<()> {
 
     let args: Args = Args::parse();
 
-    let text = extract_text::pdf2text(&args.filepath)?;
+    let bytes = std::fs::read(args.filepath)?;
+    let text = pdf_extract::extract_text_from_mem(&bytes).expect("Failed to extract text from PDF");
 
-    println!("Extracted text from PDF:\n\n{}", text);
+    println!("Resume text: {}", text);
+
+    analyze_resume(&text).await?;
 
     Ok(())
 }
