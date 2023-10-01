@@ -4,6 +4,7 @@ use anyhow::Result;
 use clap::{arg, command, Parser};
 use llm_chain::{executor, options, parameters, prompt};
 use llm_chain_openai::chatgpt::Model;
+use serde::{Deserialize, Serialize};
 
 #[derive(Parser, Debug, Clone)]
 #[command(author, version, about, long_about = None)]
@@ -11,6 +12,26 @@ struct Args {
     /// Document filepath
     #[arg(long, env)]
     pub filepath: PathBuf,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ResumeEvaluation {
+    career: u8,
+    proficiency: u8,
+    impact: u8,
+    communication: u8,
+    innovation: u8,
+    high_signal: u8,
+}
+
+fn extract_last_json(text: &str) -> Option<&str> {
+    let last_open_brace = text.rfind('{')?;
+    let last_close_brace = text.rfind('}')?;
+    if last_open_brace < last_close_brace {
+        Some(&text[last_open_brace..=last_close_brace])
+    } else {
+        None
+    }
 }
 
 /// Analyze resume.
@@ -76,12 +97,21 @@ Provide the scores in a JSON format.
     "innovation": [Innovative and Distinctive Factors Score],
     "high_signal": [High Signal Traits Score]
 }
+```
 "#
 )
     .run(&parameters!(resume_text), &exec)
     .await?;
 
-    println!("{}", res.to_immediate().await?.as_content());
+    let content = res.to_immediate().await?.as_content().to_text();
+
+    println!("{}", content);
+
+    let last_json = extract_last_json(&content).unwrap();
+
+    let resume_evaluation: ResumeEvaluation = serde_json::from_str(last_json)?;
+
+    println!("Resume Evaluation: {:?}", resume_evaluation);
 
     Ok(())
 }
