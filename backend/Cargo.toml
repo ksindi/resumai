@@ -1,0 +1,12 @@
+[package]
+name = "backend"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+axum = "0.6"
+rusoto_s3 = "0.48.0"
+rusoto_core = "0.48.0"
+tokio = { version = "1", features = ["full"] }

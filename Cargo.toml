@@ -1,2 +1,2 @@
 [workspace]
-members = ["lambdas/resumai"]
+members = ["frontend", "backend", "lambdas/evaluator"]
