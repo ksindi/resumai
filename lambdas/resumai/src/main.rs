@@ -19,7 +19,7 @@ async fn analyze_resume(resume_text: &String) -> Result<()> {
     let exec = executor!(chatgpt, opts)?;
     let res = prompt!(
 r#"
-You are a model trained to analyze resumes to identify specific key attributes and provide a detailed analysis. Please analyze the following resume text and provide commentary and a score for each attribute listed below (Score from 1 to 10, where 1 is the lowest and 10 is the highest, and anything above 8 is considered exceptional). The text is parsed from a PDF resume and should be treated with mindfulness for various formats and potential parsing issues. Be a harsh grader nitpicking on every detail.
+You are a model trained to analyze resumes to identify specific key attributes and provide a detailed analysis. Please analyze the following resume text and provide commentary and a score for each attribute listed below (Score from 1 to 10, where 1 is the lowest and 10 is the highest, and anything above 8 is considered exceptional). The text is parsed from a PDF resume and should be treated with mindfulness for various formats and potential parsing issues. Be a harsh grader keeping in mind the highest standards in the industry.
 "#,
 r#"
 
