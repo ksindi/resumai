@@ -19,7 +19,7 @@ async fn analyze_resume(resume_text: &String) -> Result<()> {
     let exec = executor!(chatgpt, opts)?;
     let res = prompt!(
 r#"
-You are a model trained to analyze resumes to identify specific key attributes and provide a detailed analysis. Please analyze the following resume text and provide commentary and a score for each attribute listed below. The text is parsed from a PDF resume and should be treated with mindfulness for various formats and potential parsing issues.
+You are a model trained to analyze resumes to identify specific key attributes and provide a detailed analysis. Please analyze the following resume text and provide commentary and a score for each attribute listed below. The text is parsed from a PDF resume and should be treated with mindfulness for various formats and potential parsing issues. Be a harsh grader nitpicking on every detail.
 "#,
 r#"
 
@@ -28,41 +28,53 @@ Resume Text:
 
 ### Analysis:
 
-#### 1. **Title Progression:**
-- **Objective:** Identify if the candidate has shown progression in their titles indicating career growth and not stagnancy.
+#### 1. **Career Trajectory:**
+- **Objective:** Assess title progression, tenures, and employment at respected or venture-backed companies. Penalize if the company is not well-known or if the candidate has a history of job-hopping. Also penalize if they have less than 8 years of experience as a software engineer or lack a senior title.
 - **Commentary:**
 
-#### 2. **Tenures:**
-- **Objective:** Ensure the candidate has tenures of at least 2 years at each company they have worked for.
+#### 2. **Technical Proficiency:**
+- **Objective:** Evaluate experience, knowledge of DevOps practices such as CI/CD, and leadership in technical projects. Penalize if they list out technologies they know without context.
 - **Commentary:**
 
-#### 3. **Achievements:**
-- **Objective:** Look for achievements that indicate a positive impact on the business and handling of large-scale operations (e.g., requests per second) using data.
+#### 3. **Quantifiable Impact:**
+- **Objective:** Seek impactful achievements with clear, quantifiable outcomes that demonstrate the candidate's significant contributions. Penalize if there are not metrics shared.
 - **Commentary:**
 
-#### 4. **Experience as a Software Engineer:**
-- **Objective:** Verify that the candidate has at least 5 years of experience as a software engineer.
+#### 4. **Professionalism, Communication, and Attention to Detail:**
+- **Objective:** Ensure excellent communication skills, attention to detail, and proper grammar to ascertain the candidate's professionalism and effectiveness in communication.
 - **Commentary:**
 
-#### 5. **Leadership in Projects:**
-- **Objective:** Confirm that the candidate has led projects.
+#### 5. **Innovative and Distinctive Factors:**
+- **Objective:** Look for signs of innovation, distinctive elements, and personal initiatives or projects.
 - **Commentary:**
 
-#### 6. **Knowledge of DevOps, AWS, and Infrastructure:**
-- **Objective:** Check for keywords such as DevOps, AWS, Infrastructure, and CI/CD to ensure the candidate has knowledge in these areas.
+#### 6. **High Signal Traits:**
+- **Objective:** Evaluate knowledge in high-signal areas like Rust, participation in math or comp sci Olympiads, and attendance at elite universities. Assess problem-solving ability, open-source contributions, continuous learning, adaptability, and passion for technology. Consider recommendations or references.
 - **Commentary:**
 
-### Overall Scores:
-Provide an overall score for each attribute on a scale of 1-10 and a final cumulative score.
+### Scores:
+Provide a score for each category and a final cumulative score.
 
-1. **Title Progression:** [Score]
-2. **Tenures:** [Score]
-3. **Achievements:** [Score]
-4. **Experience as a Software Engineer:** [Score]
-5. **Leadership in Projects:** [Score]
-6. **Knowledge of DevOps, AWS, and Infrastructure:** [Score]
+1. **Career Trajectory:** [Score]
+2. **Technical Proficiency:** [Score]
+3. **Quantifiable Impact:** [Score]
+4. **Professionalism, Communication, and Attention to Detail:** [Score]
+5. **Innovative and Distinctive Factors:** [Score]
+6. **High Signal Traits:** [Score]
 
 ### Final Cumulative Score: [Total Score]
+
+### JSON Output:
+Provide the scores in a JSON format.
+
+{
+    "career": [Career Trajectory Score],
+    "proficiency": [Technical Proficiency Score],
+    "impact": [Quantifiable Impact Score],
+    "communication": [Professionalism, Communication, and Attention to Detail Score],
+    "innovation": [Innovative and Distinctive Factors Score],
+    "high_signal": [High Signal Traits Score]
+}
 "#
 )
     .run(&parameters!(resume_text), &exec)
