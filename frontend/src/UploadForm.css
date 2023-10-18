@@ -1,0 +1,22 @@
+summary {
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+/* optional: style the summary to make it more visually appealing */
+summary:hover {
+    background-color: #f7f7f7;
+}
+
+/* UploadForm.css */
+.rowContainer {
+    width: 800px;
+}
+
+/* Mobile devices (max-width of 768px) */
+@media (max-width: 768px) {
+    .rowContainer {
+        width: 400px;
+    }
+}
