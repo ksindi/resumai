@@ -17,6 +17,8 @@ const UploadForm = () => {
     const [previousResults, setPreviousResults] = useState([]);
 
     useEffect(() => {
+        console.log("Checking for previous results a foo");
+
         const initializeResults = async () => {
             const savedResults = loadResultsFromCookie();
             if (savedResults.length > 0) {
