@@ -60,7 +60,7 @@ r#"
 Resume Text:
 `{{text}}`
 
-Here's my analysis...
+## Analysis
 
 ### 1. **Career Trajectory:**
 - **Objective:** Assess title progression, tenures, and employment at respected or venture-backed companies. Penalize if the company is not well-known (-2) or if the candidate has a history of job-hopping (-1). Also, heavily penalize if they have less than 6 years of experience as a software engineer or lack a senior title (-3).
