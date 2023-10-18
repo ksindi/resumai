@@ -1,2 +1,2 @@
 [workspace]
-members = ["lambdas/api"]
+members = ["backend"]

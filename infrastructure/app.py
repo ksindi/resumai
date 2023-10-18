@@ -38,7 +38,7 @@ class ResumaiStack(cdk.Stack):
             "resumai-api-lambda",
             binary_name="resumai",
             layers=layers,
-            manifest_path=path.join("..", "lambdas", "api"),
+            manifest_path=path.join("..", "backend"),
             environment={
                 "S3_BUCKET": bucket.bucket_name,
             },
@@ -71,7 +71,7 @@ class ResumaiStack(cdk.Stack):
             "resumai-evaluator-lambda",
             binary_name="evaluator",
             layers=layers,
-            manifest_path=path.join("..", "lambdas", "api"),
+            manifest_path=path.join("..", "backend"),
             environment={
                 "OPENAI_KEY_PARAM": ssm_param.parameter_name,
                 "S3_BUCKET": bucket.bucket_name,
