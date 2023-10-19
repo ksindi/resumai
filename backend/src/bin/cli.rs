@@ -22,11 +22,12 @@ async fn main() -> Result<()> {
     let bytes = std::fs::read(args.filepath)?;
     println!("File size: {}", bytes.len());
 
-    let text = pdf_extract::extract_text_from_mem(&bytes);
+    let text = pdf_extract::extract_text_from_mem(&bytes).unwrap();
     println!("Resume text: {:?}", text);
-    // let result = analyze_resume(&text).await?;
 
-    //println!("{}", result);
+    let result = analyze_resume(&text).await?;
+
+    println!("{}", result);
 
     Ok(())
 }

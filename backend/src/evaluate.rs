@@ -25,6 +25,7 @@ pub fn extract_last_json(text: &str) -> Option<&str> {
 }
 
 /// Analyze resume.
+#[allow(dead_code)]
 pub async fn analyze_resume(resume_text: &String) -> Result<String> {
     let config = aws_config::load_from_env().await;
     let client = aws_sdk_ssm::Client::new(&config);

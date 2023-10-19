@@ -75,6 +75,7 @@ impl S3Context {
     }
 
     /// Create S3 object.
+    #[allow(dead_code)]
     pub async fn put_object(&self, key: &str, body: &[u8]) -> Result<()> {
         self.client
             .put_object()
