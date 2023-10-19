@@ -43,11 +43,9 @@
 
 /* Mobile devices (max-width of 768px) */
 @media (max-width: 768px) {
-  .logo-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  .logo-image {
     max-width: 50%;
-    padding: 20px 0;
+    /* Default max-width for larger screens */
+    height: auto;
   }
 }
