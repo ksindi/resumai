@@ -117,6 +117,7 @@ const UploadForm = () => {
             <div {...getRootProps()} style={styles.dropzone}>
                 <input {...getInputProps()} />
                 <p>Drag & drop a resume PDF here, or click to select one</p>
+                <p style={styles.instructionText}>Accepted format: PDF. Maximum size: 5MB.</p>
                 {file && <p>Selected file: {file.name}</p>}
                 <button
                     onClick={(e) => handleFileUpload(e)}
@@ -165,6 +166,10 @@ const styles = {
     },
     centeredText: {
         height: '100vh',
+    },
+    instructionText: {
+        fontSize: '0.9em',
+        color: '#666'
     },
 };
 

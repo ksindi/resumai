@@ -8,7 +8,11 @@ function App() {
     <div style={styles.container}>
       <img src={logo} alt="logo" style={styles.logo} />
 
+      <h1>Get Expert Feedback on Your Resume!</h1>
+      <p>Upload your resume and receive professional feedback within minutes.</p>
+
       <UploadForm />
+
     </div>
   );
 }
@@ -24,7 +28,7 @@ const styles = {
     maxWidth: '20%', // Ensures the logo isn't too large
     height: 'auto',
     marginBottom: '20px', // Adds some space between the logo and the heading
-  }
+  },
 };
 
 export default App;
