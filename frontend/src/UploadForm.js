@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { useDropzone } from 'react-dropzone';
+
 import {
     getUploadURL,
     uploadFileToURL,
@@ -8,47 +8,9 @@ import {
     saveResultToCookie,
     loadResultsFromCookie
 } from './utils';
-import './UploadForm.css';
+import DropzoneArea from './Dropzone';
+import PreviousResults from './PreviousResults';
 
-const DropzoneArea = ({ file, onDrop, handleFileUpload }) => {
-    const { getRootProps, getInputProps } = useDropzone({
-        onDrop,
-        accept: 'application/pdf',
-    });
-
-    return (
-        <div {...getRootProps()} style={styles.dropzone}>
-            <input {...getInputProps()} />
-            <p>Drag & drop a resume PDF here, or click to select one</p>
-            <p style={styles.instructionText}>Accepted format: PDF. Maximum size: 5MB.</p>
-            {file && <p>Selected file: {file.name}</p>}
-            <button
-                onClick={(e) => handleFileUpload(e)}
-                disabled={!file}
-                style={styles.button}>
-                Upload
-            </button>
-        </div>
-    );
-};
-
-const PreviousResults = ({ results }) => (
-    <div style={styles.resultsContainer}>
-        {results.length > 0 && <h2>Previous Results</h2>}
-        {results.sort((a, b) => new Date(b.created) - new Date(a.created)).map((result) => (
-            <div className="rowContainer" key={result.evaluationId}>
-                <details>
-                    <summary>
-                        {result.fileName} - {result.created}
-                    </summary>
-                    <div style={styles.responseContainer}>
-                        <ReactMarkdown>{result.evaluationText}</ReactMarkdown>
-                    </div>
-                </details>
-            </div>
-        ))}
-    </div>
-);
 
 const UploadForm = () => {
     const [file, setFile] = useState(null);
@@ -106,11 +68,6 @@ const UploadForm = () => {
         setFile(file);
     }, []);
 
-    const { getRootProps, getInputProps } = useDropzone({
-        onDrop,
-        accept: 'application/pdf', // Accept only PDF files
-    });
-
     const handleFileUpload = async (e) => {
         e.stopPropagation(); // Stop the event from bubbling up
 
@@ -162,28 +119,14 @@ const UploadForm = () => {
 };
 
 const styles = {
-    button: {
-        marginTop: '10px',
-    },
-    dropzone: {
-        border: '2px dashed #cccccc',
-        borderRadius: '4px',
-        padding: '20px',
-        textAlign: 'center',
-        cursor: 'pointer',
+    centeredText: {
+        height: '100vh',
     },
     responseContainer: {
         padding: '20px',
         margin: '0 auto',
         lineHeight: '1.5',
         maxWidth: '800px',
-    },
-    centeredText: {
-        height: '100vh',
-    },
-    instructionText: {
-        fontSize: '0.9em',
-        color: '#666'
     },
 };
 
