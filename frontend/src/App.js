@@ -8,7 +8,7 @@ function App() {
     <div style={styles.container}>
       <img src={logo} alt="logo" className="logo-image" />
 
-      <h1>Get Expert Feedback on Your Resume!</h1>
+      <h2>Get Expert Feedback on Your Resume!</h2>
       <p>Upload your resume and receive professional feedback within minutes.</p>
 
       <UploadForm />
