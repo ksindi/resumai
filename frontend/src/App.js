@@ -9,11 +9,10 @@ function App() {
     <div style={styles.container}>
       <img src={logo} alt="logo" className="logo-image" />
 
-      <h2>Get Expert Feedback on Your Resume!</h2>
+      <h1>Get Expert Feedback on Your Resume!</h1>
       <p style={styles.action}>Upload your resume and receive professional feedback within minutes.</p>
 
       <UploadForm />
-
     </div>
   );
 }
