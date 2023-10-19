@@ -24,11 +24,6 @@ const styles = {
     alignItems: 'center',
     paddingTop: '50px',
   },
-  logo: {
-    maxWidth: '20%', // Ensures the logo isn't too large
-    height: 'auto',
-    marginBottom: '20px', // Adds some space between the logo and the heading
-  },
 };
 
 export default App;

@@ -39,6 +39,7 @@
   max-width: 30%;
   /* Default max-width for larger screens */
   height: auto;
+  margin-bottom: 20px
 }
 
 /* Mobile devices (max-width of 768px) */
@@ -47,5 +48,6 @@
     max-width: 50%;
     /* Default max-width for larger screens */
     height: auto;
+    margin-bottom: 20px
   }
 }
