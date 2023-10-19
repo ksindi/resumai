@@ -10,6 +10,46 @@ import {
 } from './utils';
 import './UploadForm.css';
 
+const DropzoneArea = ({ file, onDrop, handleFileUpload }) => {
+    const { getRootProps, getInputProps } = useDropzone({
+        onDrop,
+        accept: 'application/pdf',
+    });
+
+    return (
+        <div {...getRootProps()} style={styles.dropzone}>
+            <input {...getInputProps()} />
+            <p>Drag & drop a resume PDF here, or click to select one</p>
+            <p style={styles.instructionText}>Accepted format: PDF. Maximum size: 5MB.</p>
+            {file && <p>Selected file: {file.name}</p>}
+            <button
+                onClick={(e) => handleFileUpload(e)}
+                disabled={!file}
+                style={styles.button}>
+                Upload
+            </button>
+        </div>
+    );
+};
+
+const PreviousResults = ({ results }) => (
+    <div style={styles.resultsContainer}>
+        {results.length > 0 && <h2>Previous Results</h2>}
+        {results.sort((a, b) => new Date(b.created) - new Date(a.created)).map((result) => (
+            <div className="rowContainer" key={result.evaluationId}>
+                <details>
+                    <summary>
+                        {result.fileName} - {result.created}
+                    </summary>
+                    <div style={styles.responseContainer}>
+                        <ReactMarkdown>{result.evaluationText}</ReactMarkdown>
+                    </div>
+                </details>
+            </div>
+        ))}
+    </div>
+);
+
 const UploadForm = () => {
     const [file, setFile] = useState(null);
     const [evaluation, setEvaluation] = useState(null);
@@ -17,36 +57,36 @@ const UploadForm = () => {
     const [previousResults, setPreviousResults] = useState([]);
 
     useEffect(() => {
-        const initializeResults = async () => {
-            const savedResults = loadResultsFromCookie();
-            if (savedResults.length > 0) {
-                console.log("Found previous results, loading from cookie");
-                console.log("Previous results", savedResults);
-                const updatedResults = await Promise.all(savedResults.map(async (result) => {
-                    const evaluationText = await fetchEvaluation(result.evaluationId);
-                    // HACK: Remove "Assistant: " prefix from evaluation text
-                    return { ...result, evaluationText: evaluationText.replace("Assistant: ", "") };
-                }));
-                setPreviousResults(updatedResults);
-            } else {
-                console.log("No previous results found, fetching example evaluation");
-                const exampleEvaluationId = "ff875c71-ba25-4592-a837-257c982858fc";
-                const evaluationText = await fetchEvaluation(exampleEvaluationId);
-                console.log("Example evaluation response", evaluationText);
-                const created = new Date().toLocaleString();
-                const exampleEvaluation = {
-                    fileName: "example-resume.pdf",
-                    evaluationId: exampleEvaluationId,
-                    evaluationText,
-                    created,
-                };
-
-                setPreviousResults([exampleEvaluation]);
-            }
-        };
-
-        initializeResults();
+        loadPreviousResultsFromCookie();
     }, []);
+
+    const loadPreviousResultsFromCookie = async () => {
+        const savedResults = loadResultsFromCookie();
+        if (savedResults.length > 0) {
+            console.log("Found previous results, loading from cookie");
+            console.log("Previous results", savedResults);
+            const updatedResults = await Promise.all(savedResults.map(async (result) => {
+                const evaluationText = await fetchEvaluation(result.evaluationId);
+                // HACK: Remove "Assistant: " prefix from evaluation text
+                return { ...result, evaluationText: evaluationText.replace("Assistant: ", "") };
+            }));
+            setPreviousResults(updatedResults);
+        } else {
+            console.log("No previous results found, fetching example evaluation");
+            const exampleEvaluationId = "ff875c71-ba25-4592-a837-257c982858fc";
+            const evaluationText = await fetchEvaluation(exampleEvaluationId);
+            console.log("Example evaluation response", evaluationText);
+            const created = new Date().toLocaleString();
+            const exampleEvaluation = {
+                fileName: "example-resume.pdf",
+                evaluationId: exampleEvaluationId,
+                evaluationText,
+                created,
+            };
+
+            setPreviousResults([exampleEvaluation]);
+        }
+    };
 
     useEffect(() => {
         const warnBeforeUnload = (e) => {
@@ -114,37 +154,11 @@ const UploadForm = () => {
 
     return (
         <div>
-            <div {...getRootProps()} style={styles.dropzone}>
-                <input {...getInputProps()} />
-                <p>Drag & drop a resume PDF here, or click to select one</p>
-                <p style={styles.instructionText}>Accepted format: PDF. Maximum size: 5MB.</p>
-                {file && <p>Selected file: {file.name}</p>}
-                <button
-                    onClick={(e) => handleFileUpload(e)}
-                    disabled={!file}
-                    style={styles.button}>
-                    Upload
-                </button>
-            </div>
-            <div style={styles.resultsContainer}>
-                {previousResults.length > 0 && <h2>Previous Results</h2>}
-                {/* Display the results as dropdowns */}
-                {previousResults.sort((a, b) => new Date(b.created) - new Date(a.created)).map((result, index) => (
-                    <div className="rowContainer" key={index}>
-                        <details>
-                            <summary>
-                                {result.fileName} - {result.created}
-                            </summary>
-                            <div style={styles.responseContainer}>
-                                <ReactMarkdown>{result.evaluationText}</ReactMarkdown>
-                            </div>
-                        </details>
-                    </div>
-
-                ))}
-            </div>
+            <DropzoneArea file={file} onDrop={onDrop} handleFileUpload={handleFileUpload} />
+            <PreviousResults results={previousResults} />
         </div >
     );
+
 };
 
 const styles = {
