@@ -1,6 +1,7 @@
 import React from 'react';
 import UploadForm from './UploadForm';
 import logo from './assets/resumai-logo.jpg';
+import './App.css';
 
 
 function App() {
