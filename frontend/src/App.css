@@ -36,10 +36,10 @@
 }
 
 .logo-image {
-  max-width: 30%;
+  max-width: 25%;
   /* Default max-width for larger screens */
   height: auto;
-  margin-bottom: 20px
+  margin-bottom: 10px
 }
 
 /* Mobile devices (max-width of 768px) */
