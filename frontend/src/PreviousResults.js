@@ -1,5 +1,9 @@
 import ReactMarkdown from 'react-markdown';
 
+import {
+    handleDownload,
+    handleDelete,
+} from './utils';
 import './PreviousResults.css';
 
 const PreviousResults = ({ results }) => (
@@ -10,6 +14,8 @@ const PreviousResults = ({ results }) => (
                 <details>
                     <summary>
                         {result.fileName} - {result.created}
+                        <span onClick={() => handleDownload(result.fileName, result.evaluationId)}>📥</span>
+                        <span onClick={() => handleDelete(result.evaluationId)}>🗑️</span>
                     </summary>
                     <div style={styles.responseContainer}>
                         <ReactMarkdown>{result.evaluationText}</ReactMarkdown>
