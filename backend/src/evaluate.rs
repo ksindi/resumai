@@ -99,6 +99,8 @@ Provide a score for each category and a final cumulative score.
 
 As part of your output, you should hide the objective in each section. This is important.
 
+You should not assume the gender of the individual. Use pronouns they/them/their.
+
 ### Final Cumulative Score: [Total Score]
 
 ## JSON Output:
