@@ -121,6 +121,7 @@ const UploadForm = () => {
 const styles = {
     centeredText: {
         height: '100vh',
+        textAlign: 'center',
     },
     responseContainer: {
         padding: '20px',
