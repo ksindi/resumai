@@ -1,0 +1,58 @@
+[package]
+name = "resumai"
+version = "0.1.0"
+edition = "2021"
+license = "MIT OR Apache-2.0"
+publish = false
+
+[[bin]]
+name = "cli"
+test = false
+bench = false
+path = "src/bin/cli.rs"
+
+[[bin]]
+name = "evaluator"
+test = false
+bench = false
+path = "src/bin/evaluator.rs"
+
+[dependencies]
+anyhow = "1"
+axum = { version = "0.6", features = ["http2", "json", "macros"] }
+aws-config = "0.56"
+aws-sdk-ssm = "0.33.0"
+aws-sdk-s3 = "0.33.0"
+aws_lambda_events = { version = "0.11.1", features = ["s3"] }
+clap = { version = "4.4.2", features = ["derive", "env"] }
+futures = "0.3"
+hyper = "0.14.27"
+lambda_http = { version = "0.8", default-features = false, features = ["alb"] }
+lambda_runtime = "0.8"
+llm-chain = "0.12.3"
+llm-chain-openai = "0.12.3"
+mime = "0.3"
+mime-sniffer = "^0.1"
+openssl = { version = "0.10", features = ["vendored"] }
+pdf-extract = "0.7"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1"
+tracing-futures = "0.2"
+tracing-subscriber = { version = "0.3", features = [
+    "env-filter",
+    "fmt",
+    "json",
+    "time",
+] }
+tower-http = { version = "0.4", features = ["fs", "trace"] }
+uuid = { version = "1.1", features = [
+    "v4",
+    "fast-rng",
+    "macro-diagnostics",
+    "serde",
+] }
+
+[dev-dependencies]
+axum-test-helper = "0.3.0"
