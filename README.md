@@ -2,6 +2,8 @@
 
 Upload your resume and receive professional feedback within minutes. Score resumes based on a prompt using GPT.
 
+https://resumai-one.vercel.app/
+
 ## Requirements
 
 1. [AWS CDK](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html)
