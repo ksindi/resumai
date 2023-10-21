@@ -60,7 +60,7 @@ const FAQSection = () => {
         </li>
         <li>
           <strong>How does this work?</strong>
-          <p>ResumAI uses OpenAI's GPT3 API to provide feedback on your resume.</p>
+          <p>ResumAI uses OpenAI's GPT API to provide feedback on your resume.</p>
         </li>
         <li>
           <strong>How long is my data retained?</strong>
@@ -75,7 +75,7 @@ const FAQSection = () => {
           <p>No, your resume is not shared with anyone outside of OpenAI's GPT API.</p>
         </li>
         <li>
-          <strong>I do I provide feedback about the app?</strong>
+          <strong>How do I provide feedback about the app?</strong>
           <p>Please send your feedback to kysindi [at] gmail dot com.</p>
         </li>
         <li>
