@@ -128,6 +128,7 @@ const styles = {
         margin: '0 auto',
         lineHeight: '1.5',
         maxWidth: '800px',
+        textAlign: 'left',
     },
 };
 
