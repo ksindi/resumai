@@ -46,3 +46,30 @@ export const loadResultsFromCookie = () => {
     const savedResults = Cookies.get(COOKIE_NAME);
     return savedResults ? JSON.parse(savedResults) : [];
 };
+
+export const handleDownload = async (fileName, evaluationId) => {
+    try {
+        const response = await apiClient.get(`/evaluations/${evaluationId}/download`, {
+            responseType: 'blob'
+        });
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', fileName);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+    } catch (error) {
+        console.error('Error downloading the file:', error);
+    }
+};
+
+export const handleDelete = async (evaluationId) => {
+    try {
+        await apiClient.delete(`/evaluations/${evaluationId}`);
+        console.log('Resume deleted successfully.');
+        // Optionally, update your UI or re-fetch data after deletion
+    } catch (error) {
+        console.error('Error deleting the resume:', error);
+    }
+};
