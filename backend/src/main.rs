@@ -88,7 +88,14 @@ async fn app() -> Router {
 
     Router::new()
         .route("/upload", post(upload))
-        .route("/evaluations/:evaluation_id", get(get_evaluation))
+        .route(
+            "/evaluations/:evaluation_id",
+            get(get_evaluation).delete(delete_resume_and_evaluation),
+        )
+        .route(
+            "/evaluations/:evaluation_id/download_resume",
+            get(download_resume),
+        )
         .layer(
             ServiceBuilder::new()
                 .layer(TraceLayer::new_for_http())
@@ -125,6 +132,69 @@ async fn upload() -> Result<impl IntoResponse, (StatusCode, String)> {
     Ok((StatusCode::ACCEPTED, Json(result)).into_response())
 }
 
+async fn delete_resume_and_evaluation(
+    Path(evaluation_id): Path<String>,
+) -> Result<impl IntoResponse, (StatusCode, String)> {
+    let s3_context = s3::S3Context::new().await;
+
+    let resume_key = format!("resumes/{}", evaluation_id.to_string());
+    let evaluation_key = format!("results/{}", evaluation_id.to_string());
+
+    tracing::info!("Checking if object exists: {}", resume_key);
+
+    let resume_exists = s3_context.object_exists(&resume_key).await.map_err(|err| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("failed to check resume status: {err}"),
+        )
+    })?;
+
+    if !resume_exists {
+        return Err((
+            StatusCode::NOT_FOUND,
+            format!("resume {} not found", evaluation_id),
+        ));
+    }
+
+    tracing::info!("Checking if object exists: {}", evaluation_key);
+
+    let evaluation_exists = s3_context
+        .object_exists(&evaluation_key)
+        .await
+        .map_err(|err| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("failed to check evaluation status: {err}"),
+            )
+        })?;
+
+    if !evaluation_exists {
+        return Err((
+            StatusCode::NOT_FOUND,
+            format!("evaluation {} not found", evaluation_id),
+        ));
+    }
+
+    s3_context.delete_object(&resume_key).await.map_err(|err| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("failed to delete resume: {err}"),
+        )
+    })?;
+
+    s3_context
+        .delete_object(&evaluation_key)
+        .await
+        .map_err(|err| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("failed to delete evaluation: {err}"),
+            )
+        })?;
+
+    Ok((StatusCode::ACCEPTED, "OK").into_response())
+}
+
 async fn get_evaluation(
     Path(evaluation_id): Path<String>,
 ) -> Result<impl IntoResponse, (StatusCode, String)> {
@@ -158,6 +228,48 @@ async fn get_evaluation(
     let evaluation = String::from_utf8(evaluation).unwrap();
 
     Ok((StatusCode::ACCEPTED, Json(evaluation)).into_response())
+}
+
+async fn download_resume(
+    Path(evaluation_id): Path<String>,
+) -> Result<impl IntoResponse, (StatusCode, String)> {
+    let s3_context = s3::S3Context::new().await;
+
+    let key = format!("resumes/{}", evaluation_id.to_string());
+
+    tracing::info!("Checking if object exists: {}", key);
+
+    let object_exists = s3_context.object_exists(&key).await.map_err(|err| {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("failed to check resume status: {err}"),
+        )
+    })?;
+
+    if !object_exists {
+        return Err((
+            StatusCode::NOT_FOUND,
+            format!("resume {} not found", evaluation_id),
+        ));
+    }
+
+    let filename = format!("resume-{}.pdf", evaluation_id);
+
+    let presigned_url = s3_context
+        .get_object_presigned_url(&key, &filename)
+        .await
+        .map_err(|err| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("failed to get presigned url: {err}"),
+            )
+        })?;
+
+    let result = json!({
+        "download_url": presigned_url,
+    });
+
+    Ok((StatusCode::ACCEPTED, Json(result)).into_response())
 }
 
 #[tokio::main]

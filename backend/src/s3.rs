@@ -4,7 +4,8 @@ use anyhow::{Context, Result};
 use aws_sdk_s3::presigning::PresigningConfig;
 use aws_sdk_s3::primitives::ByteStream;
 
-const PUT_EXPIRES_IN: Duration = Duration::from_secs(30 * 60);
+const GET_EXPIRES_IN: Duration = Duration::from_secs(24 * 60 * 60); // 24 hours
+const PUT_EXPIRES_IN: Duration = Duration::from_secs(30 * 60); // 30 minutes
 
 #[derive(Debug, Clone)]
 pub struct S3Context {
@@ -38,6 +39,24 @@ impl S3Context {
         tracing::info!("Object exists: {:?}", res);
 
         Ok(res.is_ok())
+    }
+
+    /// Generate presigned URL for downloading from S3.
+    pub async fn get_object_presigned_url(
+        &self,
+        key: &String,
+        filename: &String,
+    ) -> Result<String> {
+        let presigned_req = &self
+            .client
+            .get_object()
+            .bucket(&self.bucket)
+            .key(key)
+            .response_content_disposition(format!("attachment; filename=\"{}\"", filename))
+            .presigned(PresigningConfig::expires_in(GET_EXPIRES_IN)?)
+            .await?;
+
+        Ok(presigned_req.uri().to_string())
     }
 
     /// Generate presigned URL for uploading to S3.
@@ -85,6 +104,21 @@ impl S3Context {
             .send()
             .await
             .with_context(|| format!("Failed to upload {} to S3 bucket {}.", key, &self.bucket))?;
+
+        Ok(())
+    }
+
+    /// Delete S3 object.
+    pub async fn delete_object(&self, key: &str) -> Result<()> {
+        self.client
+            .delete_object()
+            .bucket(&self.bucket)
+            .key(key)
+            .send()
+            .await
+            .with_context(|| {
+                format!("Failed to delete {} from S3 bucket {}.", key, &self.bucket)
+            })?;
 
         Ok(())
     }
