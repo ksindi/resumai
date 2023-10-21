@@ -149,11 +149,13 @@ async fn delete_resume_and_evaluation(
         )
     })?;
 
-    if !resume_exists {
-        return Err((
-            StatusCode::NOT_FOUND,
-            format!("resume {} not found", evaluation_id),
-        ));
+    if resume_exists {
+        s3_context.delete_object(&resume_key).await.map_err(|err| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("failed to delete resume: {err}"),
+            )
+        })?;
     }
 
     tracing::info!("Checking if object exists: {}", evaluation_key);
@@ -168,29 +170,17 @@ async fn delete_resume_and_evaluation(
             )
         })?;
 
-    if !evaluation_exists {
-        return Err((
-            StatusCode::NOT_FOUND,
-            format!("evaluation {} not found", evaluation_id),
-        ));
+    if evaluation_exists {
+        s3_context
+            .delete_object(&evaluation_key)
+            .await
+            .map_err(|err| {
+                (
+                    StatusCode::INTERNAL_SERVER_ERROR,
+                    format!("failed to delete evaluation: {err}"),
+                )
+            })?;
     }
-
-    s3_context.delete_object(&resume_key).await.map_err(|err| {
-        (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            format!("failed to delete resume: {err}"),
-        )
-    })?;
-
-    s3_context
-        .delete_object(&evaluation_key)
-        .await
-        .map_err(|err| {
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("failed to delete evaluation: {err}"),
-            )
-        })?;
 
     Ok((StatusCode::ACCEPTED, "OK").into_response())
 }

@@ -49,26 +49,32 @@ export const loadResultsFromCookie = () => {
 
 export const handleDownload = async (fileName, evaluationId) => {
     try {
-        const response = await apiClient.get(`/evaluations/${evaluationId}/download`, {
-            responseType: 'blob'
-        });
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', fileName);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
+        // Assuming the endpoint will now provide a download URL
+        const response = await apiClient.get(`/evaluations/${evaluationId}/download`);
+
+        if (response.data && response.data.download_url) {
+            // Using the provided download URL
+            const link = document.createElement('a');
+            link.href = response.data.download_url;
+            link.setAttribute('download', fileName);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        } else {
+            console.error('Invalid response format. Expected a download_url key in the response.');
+        }
     } catch (error) {
         console.error('Error downloading the file:', error);
     }
 };
 
-export const handleDelete = async (evaluationId) => {
+export const handleDelete = async (evaluationId, setResults) => {
     try {
         await apiClient.delete(`/evaluations/${evaluationId}`);
         console.log('Resume deleted successfully.');
-        // Optionally, update your UI or re-fetch data after deletion
+
+        // Update the state to remove the deleted resume
+        setResults(prevResults => prevResults.filter(result => result.evaluationId !== evaluationId));
     } catch (error) {
         console.error('Error deleting the resume:', error);
     }

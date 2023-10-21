@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 
 import {
@@ -6,25 +7,29 @@ import {
 } from './utils';
 import './PreviousResults.css';
 
-const PreviousResults = ({ results }) => (
-    <div style={styles.resultsContainer}>
-        {results.length > 0 && <h2>Previous Results</h2>}
-        {results.sort((a, b) => new Date(b.created) - new Date(a.created)).map((result) => (
-            <div className="rowContainer" key={result.evaluationId}>
-                <details>
-                    <summary>
-                        {result.fileName} - {result.created}
-                        <span onClick={() => handleDownload(result.fileName, result.evaluationId)}>📥</span>
-                        <span onClick={() => handleDelete(result.evaluationId)}>🗑️</span>
-                    </summary>
-                    <div style={styles.responseContainer}>
-                        <ReactMarkdown>{result.evaluationText}</ReactMarkdown>
-                    </div>
-                </details>
-            </div>
-        ))}
-    </div>
-);
+const PreviousResults = ({ results: initialResults }) => {
+    const [results, setResults] = useState(initialResults);
+
+    return (
+        <div style={styles.resultsContainer}>
+            {results.length > 0 && <h2>Previous Results</h2>}
+            {results.sort((a, b) => new Date(b.created) - new Date(a.created)).map((result) => (
+                <div className="rowContainer" key={result.evaluationId}>
+                    <details>
+                        <summary>
+                            {result.fileName} - {result.created}
+                            <span onClick={() => handleDownload(result.fileName, result.evaluationId)}>📥</span>
+                            <span onClick={() => handleDelete(result.evaluationId, setResults)}>🗑️</span>
+                        </summary>
+                        <div style={styles.responseContainer}>
+                            <ReactMarkdown>{result.evaluationText}</ReactMarkdown>
+                        </div>
+                    </details>
+                </div>
+            ))}
+        </div>
+    );
+};
 
 const styles = {
     responseContainer: {
